@@ -1,8 +1,9 @@
 name = LDAP SSO
 description = Implements Single Sign On (SSO) LDAP Authentication
-package = Lightweight Directory Access Protocol
+package = LDAP
 dependencies[] = ldap:ldap_servers
 dependencies[] = ldap:ldap_authentication
-core = 7.x
+backdrop = 1.x
+type = module
 configure = admin/config/people/ldap/authentication
-
+tags[] = Account Management
