@@ -65,9 +65,9 @@ function ldap_sso_boot() {
           $login_attempted = FALSE;
         }
 
-        require_once DRUPAL_ROOT . '/includes/common.inc';
-        require_once DRUPAL_ROOT . '/' . variable_get('path_inc', 'includes/path.inc');
-        $ldap_authentication_conf = variable_get('ldap_authentication_conf', array());
+        require_once BACKDROP_ROOT . '/core/includes/common.inc';
+        require_once BACKDROP_ROOT . '/' . settings_get('path_inc', 'core/includes/path.inc');
+        $ldap_authentication_conf = config_get('ldap_authentication.settings', 'ldap_authentication_conf');
 
         if (isset($ldap_authentication_conf['seamlessLogin']) && $ldap_authentication_conf['seamlessLogin'] == 1 && ($login_attempted != 'true')) {
           if ($ldap_authentication_conf['cookieExpire'] == 0) {
@@ -131,7 +131,7 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
     return TRUE;
   }
 
-  $ldap_authentication_conf = variable_get('ldap_authentication_conf', array());
+  $ldap_authentication_conf = config_get('ldap_authentication.settings', 'ldap_authentication_conf');
 
   if (isset($ldap_authentication_conf['ssoExcludedHosts']) && is_array($ldap_authentication_conf['ssoExcludedHosts'])) {
     $host = ldap_servers_get_globals('_SERVER', 'SERVER_NAME');
@@ -161,7 +161,7 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
       $replacements = array(
         '|',
         '.*',
-        '\1' . preg_quote(variable_get('site_frontpage', 'node'), '/') . '\2',
+        '\1' . preg_quote(config_get('system.core', 'site_frontpage'), '/') . '\2',
       );
       $patterns_quoted = preg_quote($patterns, '/');
       $regex = '/^(' . preg_replace($to_replace, $replacements, $patterns_quoted) . ')$/';
@@ -187,7 +187,7 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
  */
 function ldap_sso_user_login_sso() {
 
-  $detailed_watchdog_log = variable_get('ldap_help_watchdog_detail', 0);
+  $detailed_watchdog_log = config_get('ldap_help.settings', 'ldap_help_watchdog_detail');
   $auth_conf = ldap_authentication_get_valid_conf();
 
   if ($detailed_watchdog_log) {
@@ -208,7 +208,7 @@ function ldap_sso_user_login_sso() {
     );
   }
 
-  // Step 1.  Derive $remote_user, $realm, and $domain from $_SERVER variable.
+  // Step 1. Derive $remote_user, $realm, and $domain from $_SERVER variable.
   $remote_user = NULL;
   $realm = NULL;
   $domain = NULL;
@@ -372,8 +372,8 @@ function ldap_sso_user_login_sso() {
  *   $_ENV[][], etv value if not in a simpletest or mock variable not available.
  */
 function ldap_servers_get_globals($global_type, $key, $only_mock_values = FALSE) {
-  $simpletest_globals = variable_get('ldap_simpletest_globals', array());
-  $simpletest = variable_get('ldap_simpletest', FALSE);
+  $simpletest_globals = config_get('ldap_servers.settings', 'ldap_servers_simpletest_globals');
+  $simpletest = config_get('ldap_servers.settings', 'ldap_servers_simpletest');
 
   if ($simpletest && (isset($simpletest_globals[$global_type][$key]) || $only_mock_values)) {
     return ($simpletest_globals[$global_type][$key]) ? $simpletest_globals[$global_type][$key] : NULL;
@@ -395,8 +395,8 @@ function ldap_servers_get_globals($global_type, $key, $only_mock_values = FALSE)
  *   The value to be set.
  */
 function ldap_servers_set_globals($global_type, $key, $value) {
-  $simpletest_globals = variable_get('ldap_simpletest_globals', array());
-  $simpletest = variable_get('ldap_simpletest', FALSE);
+  $simpletest_globals = config_get('ldap_servers.settings', 'ldap_servers_simpletest_globals');
+  $simpletest = config_get('ldap_servers.settings', 'ldap_servers_simpletest');
   if ($simpletest) {
     $simpletest_globals[$global_type][$key] = $value;
     variable_set('ldap_simpletest_globals', $simpletest_globals);
@@ -418,8 +418,8 @@ function ldap_servers_set_globals($global_type, $key, $value) {
  *   Don't get actual values when mock values don't exist.
  */
 function ldap_servers_delete_globals($global_type, $key, $only_mock_values = FALSE) {
-  $simpletest_globals = variable_get('ldap_simpletest_globals', array());
-  $simpletest = variable_get('ldap_simpletest', FALSE);
+  $simpletest_globals = config_get('ldap_servers.settings', 'ldap_servers_simpletest_globals');
+  $simpletest = config_get('ldap_servers.settings', 'ldap_servers_simpletest');
   if ($simpletest && isset($simpletest_globals[$global_type][$key])) {
     unset($simpletest_globals[$global_type][$key]);
     variable_set('ldap_simpletest_globals', $simpletest_globals);
