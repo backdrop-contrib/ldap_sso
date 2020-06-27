@@ -399,7 +399,7 @@ function ldap_servers_set_globals($global_type, $key, $value) {
   $simpletest = config_get('ldap_servers.settings', 'ldap_servers_simpletest');
   if ($simpletest) {
     $simpletest_globals[$global_type][$key] = $value;
-    variable_set('ldap_simpletest_globals', $simpletest_globals);
+    config_set('ldap_servers.settings', 'ldap_servers_simpletest_globals', $simpletest_globals);
   }
   else {
     $GLOBALS[$global_type][$key] = $value;
@@ -422,7 +422,7 @@ function ldap_servers_delete_globals($global_type, $key, $only_mock_values = FAL
   $simpletest = config_get('ldap_servers.settings', 'ldap_servers_simpletest');
   if ($simpletest && isset($simpletest_globals[$global_type][$key])) {
     unset($simpletest_globals[$global_type][$key]);
-    variable_set('ldap_simpletest_globals', $simpletest_globals);
+    config_set('ldap_servers.settings', 'ldap_servers_simpletest_globals', $simpletest_globals);
   }
   elseif (!$only_mock_values && isset($GLOBALS[$global_type][$key])) {
     unset($GLOBALS[$global_type][$key]);
