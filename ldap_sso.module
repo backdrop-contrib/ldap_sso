@@ -5,6 +5,9 @@
  * This module injects itself into Drupal's Authentication stack.
  */
 
+require_once BACKDROP_ROOT . '/modules/ldap/ldap_servers/ldap_servers.module';
+require_once BACKDROP_ROOT . '/modules/ldap/ldap_servers/ldap_servers.functions.inc';
+
 /**
  * Implements hook_menu().
  */
@@ -354,78 +357,4 @@ function ldap_sso_user_login_sso() {
     }
     drupal_goto('user/login');
   }
-}
-
-
-/**
- * Used to mock $_SERVER, $_SESSION, etc globals for simpletests.
- *
- * @param string $global_type
- *   _SERVER, _ENV, _COOKIE, _GET, _POST, _REQUEST.
- * @param string $key
- *   Such as 'SERVER_ADDR', 'SERVER_PROTOCOL', etc.
- * @param bool $only_mock_values
- *   Don't get actual values when mock values don't exist.
- *
- * @return mixed
- *   ldap_simpletest_globals variable for global and key or $_SERVER[][],
- *   $_ENV[][], etv value if not in a simpletest or mock variable not available.
- */
-function ldap_servers_get_globals($global_type, $key, $only_mock_values = FALSE) {
-  $simpletest_globals = config_get('ldap_servers.settings', 'ldap_servers_simpletest_globals');
-  $simpletest = config_get('ldap_servers.settings', 'ldap_servers_simpletest');
-
-  if ($simpletest && (isset($simpletest_globals[$global_type][$key]) || $only_mock_values)) {
-    return ($simpletest_globals[$global_type][$key]) ? $simpletest_globals[$global_type][$key] : NULL;
-  }
-  else {
-    return (isset($GLOBALS[$global_type][$key]) && !$only_mock_values) ? $GLOBALS[$global_type][$key] : NULL;
-  }
-
-}
-
-/**
- * Set globals.
- *
- * @param string $global_type
- *   _SERVER, _ENV, _COOKIE, _GET, _POST, _REQUEST.
- * @param string $key
- *   Such as 'SERVER_ADDR', 'SERVER_PROTOCOL', etc.
- * @param string $value
- *   The value to be set.
- */
-function ldap_servers_set_globals($global_type, $key, $value) {
-  $simpletest_globals = config_get('ldap_servers.settings', 'ldap_servers_simpletest_globals');
-  $simpletest = config_get('ldap_servers.settings', 'ldap_servers_simpletest');
-  if ($simpletest) {
-    $simpletest_globals[$global_type][$key] = $value;
-    config_set('ldap_servers.settings', 'ldap_servers_simpletest_globals', $simpletest_globals);
-  }
-  else {
-    $GLOBALS[$global_type][$key] = $value;
-  }
-
-}
-
-/**
- * Delete globals.
- *
- * @param string $global_type
- *   _SERVER, _ENV, _COOKIE, _GET, _POST, _REQUEST.
- * @param string $key
- *   Such as 'SERVER_ADDR', 'SERVER_PROTOCOL', etc.
- * @param bool $only_mock_values
- *   Don't get actual values when mock values don't exist.
- */
-function ldap_servers_delete_globals($global_type, $key, $only_mock_values = FALSE) {
-  $simpletest_globals = config_get('ldap_servers.settings', 'ldap_servers_simpletest_globals');
-  $simpletest = config_get('ldap_servers.settings', 'ldap_servers_simpletest');
-  if ($simpletest && isset($simpletest_globals[$global_type][$key])) {
-    unset($simpletest_globals[$global_type][$key]);
-    config_set('ldap_servers.settings', 'ldap_servers_simpletest_globals', $simpletest_globals);
-  }
-  elseif (!$only_mock_values && isset($GLOBALS[$global_type][$key])) {
-    unset($GLOBALS[$global_type][$key]);
-  }
-
 }
