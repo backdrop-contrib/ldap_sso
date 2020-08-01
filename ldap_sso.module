@@ -2,7 +2,7 @@
 
 /**
  * @file
- * This module injects itself into Drupal's Authentication stack.
+ * This module injects itself into Backdrop's Authentication stack.
  */
 
 require_once BACKDROP_ROOT . '/modules/ldap/ldap_servers/ldap_servers.module';
@@ -49,7 +49,7 @@ function ldap_sso_user_logout($account) {
  */
 function ldap_sso_boot() {
 
-  if (!drupal_is_cli() && ($GLOBALS['user']->uid == 0)) {
+  if (!backdrop_is_cli() && ($GLOBALS['user']->uid == 0)) {
 
     if (ldap_sso_path_excluded_from_sso()) {
       return;
@@ -81,20 +81,20 @@ function ldap_sso_boot() {
           }
           ldap_servers_set_globals('_SESSION', 'seamless_login_attempted', $login_attempted);
 
-          drupal_bootstrap(DRUPAL_BOOTSTRAP_LANGUAGE);
+          backdrop_bootstrap(BACKDROP_BOOTSTRAP_LANGUAGE);
           // Seems redundant, but need to check this again after additional
           // bootstrap.
           if (ldap_sso_path_excluded_from_sso()) {
             return;
           }
-          // Add the query key to the drupal_goto() options array only if there
+          // Add the query key to the backdrop_goto() options array only if there
           // is a destination set. This prevents infinite redirect loops.
           $options = array();
-          $destination = drupal_get_destination();
+          $destination = backdrop_get_destination();
           if (!empty($destination['destination'])) {
             $options['query'] = $destination;
           }
-          drupal_goto('user/login/sso', $options);
+          backdrop_goto('user/login/sso', $options);
         }
         else {
           return;
@@ -148,10 +148,10 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
   if (isset($ldap_authentication_conf['ssoExcludedPaths'])) {
     $patterns = implode("\r\n", $ldap_authentication_conf['ssoExcludedPaths']);
     if ($patterns) {
-      if (function_exists('drupal_get_path_alias')) {
-        $path = drupal_get_path_alias($path);
+      if (function_exists('backdrop_get_path_alias')) {
+        $path = backdrop_get_path_alias($path);
       }
-      $path = (function_exists('drupal_strtolower')) ? drupal_strtolower($path) : strtolower($path);
+      $path = (function_exists('backdrop_strtolower')) ? backdrop_strtolower($path) : strtolower($path);
 
       $to_replace = array(
         // Newlines.
@@ -307,18 +307,18 @@ function ldap_sso_user_login_sso() {
         ldap_servers_set_globals('_SESSION', 'seamless_login', 'auto login');
         setcookie("seamless_login_attempted", '', time() - 3600, base_path(), "");
         ldap_servers_delete_globals('_SESSION', 'seamless_login_attempted');
-        // Make sure we tell Drupal to create the session cookie for this
+        // Make sure we tell Backdrop to create the session cookie for this
         // authenticated user.
       }
       user_login_finalize();
       if ($auth_conf->ssoNotifyAuthentication) {
-        drupal_set_message(theme('ldap_authentication_login_message',
+        backdrop_set_message(theme('ldap_authentication_login_message',
           array('message' => t('You have been successfully authenticated'))));
       }
       if ($detailed_watchdog_log) {
-        watchdog('ldap_authentication', 'ldap_sso_user_login_sso.remote_user.user_success.drupal_goto front', $watchdog_tokens, WATCHDOG_DEBUG);
+        watchdog('ldap_authentication', 'ldap_sso_user_login_sso.remote_user.user_success.backdrop_goto front', $watchdog_tokens, WATCHDOG_DEBUG);
       }
-      drupal_goto('<front>');
+      backdrop_goto('<front>');
     }
     else {
       if ($auth_conf->seamlessLogin == 1) {
@@ -328,14 +328,14 @@ function ldap_sso_user_login_sso() {
         setcookie("seamless_login", 'do not auto login', time() + $auth_conf->cookieExpire, base_path(), "");
         ldap_servers_set_globals('_SESSION', 'seamless_login', 'do not auto login');
       }
-      drupal_set_message(theme('ldap_authentication_message_not_found', array(
+      backdrop_set_message(theme('ldap_authentication_message_not_found', array(
         'message' => t('Sorry, your LDAP credentials were not found, or the LDAP server is not available. You may log in with other credentials on the !user_login_form.',
           array('!user_login_form' => l(t('user login form'), 'user/login'))))
         ), 'error');
       if ($detailed_watchdog_log) {
-        watchdog('ldap_authentication', 'ldap_sso_user_login_sso.remote_user.user_fail.drupal_goto user/logint', $watchdog_tokens, WATCHDOG_DEBUG);
+        watchdog('ldap_authentication', 'ldap_sso_user_login_sso.remote_user.user_fail.backdrop_goto user/logint', $watchdog_tokens, WATCHDOG_DEBUG);
       }
-      drupal_goto('user/login');
+      backdrop_goto('user/login');
     }
   }
   else {
@@ -349,12 +349,12 @@ function ldap_sso_user_login_sso() {
         watchdog('ldap_authentication', 'ldap_sso_user_login_sso.no_remote_user.seamlessLogin', $watchdog_tokens, WATCHDOG_DEBUG);
       }
     }
-    drupal_set_message(theme('ldap_authentication_message_not_authenticated', array(
+    backdrop_set_message(theme('ldap_authentication_message_not_authenticated', array(
       'message' => t('You were not authenticated by the server. You may log in with your credentials below.'),
       )), 'error');
     if ($detailed_watchdog_log) {
-      watchdog('ldap_authentication', 'ldap_sso_user_login_sso.no_remote_user.drupal_goto user/login', $watchdog_tokens, WATCHDOG_DEBUG);
+      watchdog('ldap_authentication', 'ldap_sso_user_login_sso.no_remote_user.backdrop_goto user/login', $watchdog_tokens, WATCHDOG_DEBUG);
     }
-    drupal_goto('user/login');
+    backdrop_goto('user/login');
   }
 }
