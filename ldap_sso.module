@@ -354,7 +354,7 @@ function ldap_sso_user_login_sso() {
     }
     backdrop_set_message(theme('ldap_authentication_message_not_authenticated', array(
       'message' => t('You were not authenticated by the server. You may log in with your credentials below.'),
-      )), 'error');
+      )), 'error', FALSE);
     if ($detailed_watchdog_log) {
       watchdog('ldap_authentication', 'ldap_sso_user_login_sso.no_remote_user.backdrop_goto user/login', $watchdog_tokens, WATCHDOG_DEBUG);
     }
