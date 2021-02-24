@@ -287,7 +287,10 @@ function ldap_sso_user_login_sso() {
     // Make sure we're populating the global user object so that we can log this
     // user in.
     global $user;
-    $user = ldap_authentication_user_login_authenticate_validate(array(), $fake_form_state, TRUE);
+    $validated_user = ldap_authentication_user_login_authenticate_validate(array(), $fake_form_state, TRUE);
+    if ($validated_user) {
+      $user = $validated_user;
+    }
 
 
     if ($detailed_watchdog_log) {
