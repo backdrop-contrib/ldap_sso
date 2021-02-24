@@ -298,7 +298,7 @@ function ldap_sso_user_login_sso() {
       watchdog('ldap_authentication', 'ldap_sso_user_login_sso.remote_user: uid of user=!uid', $watchdog_tokens, WATCHDOG_DEBUG);
     }
 
-    if ($user && $user->uid > 0) {
+    if ($user && $user->uid > 0 && $user->status != 0) {
       // Reload the account to ensure we have a fully populated user object.
       $user = user_load($user->uid);
 
@@ -322,6 +322,10 @@ function ldap_sso_user_login_sso() {
         watchdog('ldap_authentication', 'ldap_sso_user_login_sso.remote_user.user_success.backdrop_goto front', $watchdog_tokens, WATCHDOG_DEBUG);
       }
       backdrop_goto('<front>');
+    }
+    elseif ($user->status == 0) {
+      backdrop_set_message(t('Your account is blocked.'), 'error');
+      backdrop_goto('user/login');
     }
     else {
       if ($auth_conf->seamlessLogin == 1) {
