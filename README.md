@@ -40,6 +40,7 @@ Installation
   - Administration > Configuration > User accounts > LDAP Configuration > Authentication > Single Sign-on
 - Check the log later. If you see several errors with this message, disable the "Cache pages for anonymous users" option:
   "Warning: Cannot modify header information - headers already sent in ldap_sso_boot()"
+
   Administration > Configuration > Development > Performance > Disable: Cache pages for anonymous users
 
 	
