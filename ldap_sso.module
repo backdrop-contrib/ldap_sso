@@ -72,7 +72,7 @@ function ldap_sso_boot() {
         require_once BACKDROP_ROOT . '/' . settings_get('path_inc', 'core/includes/path.inc');
         $ldap_authentication_conf = config_get('ldap_authentication.settings', 'ldap_authentication_conf');
 
-        if (isset($ldap_authentication_conf['seamlessLogin']) && $ldap_authentication_conf['seamlessLogin'] == 1 && ($login_attempted != 'true')) {
+        if (isset($ldap_authentication_conf['seamlessLogin']) && $ldap_authentication_conf['seamlessLogin'] == 1) {
           if ($ldap_authentication_conf['cookieExpire'] == 0) {
             setcookie("seamless_login_attempted", 'true', 0, base_path(), "");
           }
