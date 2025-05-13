@@ -54,6 +54,9 @@ function ldap_sso_boot() {
     return;
   }
 
+  require_once BACKDROP_ROOT . '/core/includes/common.inc';
+  require_once BACKDROP_ROOT . '/' . settings_get('path_inc', 'core/includes/path.inc');
+  
   // If the path shouldn't trigger SSO, don't.
   if (ldap_sso_path_excluded_from_sso()) {
     return;
@@ -69,8 +72,7 @@ function ldap_sso_boot() {
       $login_attempted = FALSE;
     }
 
-    require_once BACKDROP_ROOT . '/core/includes/common.inc';
-    require_once BACKDROP_ROOT . '/' . settings_get('path_inc', 'core/includes/path.inc');
+   
     $ldap_authentication_conf = config_get('ldap_authentication.settings', 'ldap_authentication_conf');
 
     if (isset($ldap_authentication_conf['seamlessLogin']) && $ldap_authentication_conf['seamlessLogin'] == 1) {
@@ -106,10 +108,14 @@ function ldap_sso_boot() {
 function ldap_sso_default_excluded_paths() {
   return array(
     'admin/config/search/clean-urls/check',
+    'user',
     'user/login/sso',
-    'user/logout',
     'user/login',
+    'user/login/*',
     'user/password',
+    'user/register',
+    'user/reset/*',
+    'user/logout',
     'core/cron.php',
   );
 }
@@ -131,7 +137,8 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
     $path = ltrim(ldap_servers_get_globals('_SERVER', 'PHP_SELF'), '/');
   }
 
-  if (in_array($path, ldap_sso_default_excluded_paths())) {
+  //if (in_array($path, ldap_sso_default_excluded_paths())) {
+  if (backdrop_match_path($path, implode ("\n", ldap_sso_default_excluded_paths()))) {
     return TRUE;
   }
 
@@ -147,29 +154,13 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
   }
 
   if (isset($ldap_authentication_conf['ssoExcludedPaths'])) {
-    $patterns = implode("\r\n", $ldap_authentication_conf['ssoExcludedPaths']);
+    $patterns = implode("\n", $ldap_authentication_conf['ssoExcludedPaths']);
     if ($patterns) {
       if (function_exists('backdrop_get_path_alias')) {
         $path = backdrop_get_path_alias($path);
       }
       $path = (function_exists('backdrop_strtolower')) ? backdrop_strtolower($path) : strtolower($path);
-
-      $to_replace = array(
-        // Newlines.
-        '/(\r\n?|\n)/',
-        // Asterisks.
-        '/\\\\\*/',
-        // <front>.
-        '/(^|\|)\\\\<front\\\\>($|\|)/',
-      );
-      $replacements = array(
-        '|',
-        '.*',
-        '\1' . preg_quote(config_get('system.core', 'site_frontpage'), '/') . '\2',
-      );
-      $patterns_quoted = preg_quote($patterns, '/');
-      $regex = '/^(' . preg_replace($to_replace, $replacements, $patterns_quoted) . ')$/';
-      $result = (bool) preg_match($regex, $path);
+      $result = backdrop_match_path($path, $patterns);
     }
   }
 
