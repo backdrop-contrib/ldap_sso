@@ -23,7 +23,6 @@ function ldap_sso_menu() {
   return $items;
 }
 
-
 /**
  * Implements hook_user_logout().
  *
@@ -72,7 +71,6 @@ function ldap_sso_boot() {
       $login_attempted = FALSE;
     }
 
-   
     $ldap_authentication_conf = config_get('ldap_authentication.settings', 'ldap_authentication_conf');
 
     if (isset($ldap_authentication_conf['seamlessLogin']) && $ldap_authentication_conf['seamlessLogin'] == 1) {
@@ -137,7 +135,6 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
     $path = ltrim(ldap_servers_get_globals('_SERVER', 'PHP_SELF'), '/');
   }
 
-  //if (in_array($path, ldap_sso_default_excluded_paths())) {
   if (backdrop_match_path($path, implode ("\n", ldap_sso_default_excluded_paths()))) {
     return TRUE;
   }
@@ -163,9 +160,7 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
       $result = backdrop_match_path($path, $patterns);
     }
   }
-
   return $result;
-
 }
 
 
