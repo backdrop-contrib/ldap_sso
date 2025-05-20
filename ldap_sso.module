@@ -153,9 +153,6 @@ function ldap_sso_path_excluded_from_sso($path = FALSE) {
   if (isset($ldap_authentication_conf['ssoExcludedPaths'])) {
     $patterns = implode("\n", $ldap_authentication_conf['ssoExcludedPaths']);
     if ($patterns) {
-      if (function_exists('backdrop_get_path_alias')) {
-        $path = backdrop_get_path_alias($path);
-      }
       $path = (function_exists('backdrop_strtolower')) ? backdrop_strtolower($path) : strtolower($path);
       $result = backdrop_match_path($path, $patterns);
     }
