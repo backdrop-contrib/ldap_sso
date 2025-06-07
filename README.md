@@ -43,7 +43,7 @@ Installation
 
   Administration > Configuration > Development > Performance > Disable: Cache pages for anonymous users
 
-	
+
 Usage instructions
 ------------------
 
@@ -58,12 +58,12 @@ available here: https://sourceforge.net/projects/mod-auth-sspi/,
 while mod_ntlm is available here: http://modntlm.sourceforge.net/,
 and mod_auth_ntlm_winbind is available here:
 https://www.samba.org/ftp/unpacked/lorikeet/mod_auth_ntlm_winbind/
-If a Linux distribution is being used, Apache authentication modules are likely
-available within the distro's package manager.
+If a Linux distribution is being used, the Apache modules mod_auth_gssapi or 
+mod_auth_kerb can be used.
 
 Unless an administrator wishes to require that all visitors be authenticated,
 NTLM and/or basic authentication should be set up only on the path
-user/login/sso, which will authentify the visitor but not deny access to view
+user/login/sso, which will authenticate the visitor but not deny access to view
 the site if the visitor is not authenticated. An administrator may wish to
 require LDAP authentication to view any portion of the site; this can be
 achieved by changing the location directive below to "/". An administrator may
@@ -117,6 +117,7 @@ NameVirtualHost example.com
     #SSPIBasicPreferred On
     #SSPIofferSSPI off
   </Location>
+  ErrorDocument 401 "<html><meta http-equiv=\"refresh\" content=\"0;url=/user/login\"></html>"
 </VirtualHost>
 ```
 
